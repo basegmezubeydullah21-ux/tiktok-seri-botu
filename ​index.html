@@ -5,64 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TikTok Seri Botu</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; margin: 0; }
-        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #fe2c55; margin-bottom: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #fe2c55; }
         label { font-size: 14px; color: #bbb; display: block; margin-top: 12px; }
-        input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 6px; border: 1px solid #333; background: #2a2a2a; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #fe2c55; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; transition: background 0.2s; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 6px; border-radius: 6px; border: 1px solid #333; background: #2a2a2a; color: #fff; box-sizing: border-box; }
+        textarea { height: 100px; font-family: monospace; font-size: 12px; }
+        button { width: 100%; padding: 12px; background: #fe2c55; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { background: #e0264b; }
-        .info { font-size: 12px; color: #888; margin-top: 20px; line-height: 1.5; border-top: 1px solid #333; padding-top: 15px; }
-        #status { font-weight: bold; margin-top: 15px; text-align: center; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>TikTok Seri Botu 🚀</h2>
-        <form id="botForm">
-            <label>Kendi TikTok Kullanıcı Adınız:</label>
-            <input type="text" id="myUser" placeholder="ör: ahmet" required>
-            
-            <label>Kalp Atılacak Arkadaşınızın Kullanıcı Adı:</label>
-            <input type="text" id="targetUser" placeholder="ör: mehmet" required>
-            
-            <label>TikTok Session ID (Çerez):</label>
-            <input type="password" id="sessionId" placeholder="sessionid çerezinizi yapıştırın" required>
-            
-            <button type="button" onclick="saveData()">Ayar Dosyasını Oluştur</button>
-        </form>
-        <p id="status"></p>
-        <div class="info">
-            <b>Session ID Nasıl Alınır?</b><br>
-            1. Bilgisayardan TikTok'a giriş yapın.<br>
-            2. <b>F12</b> tuşuna basıp Geliştirici Araçları'nı açın.<br>
-            3. <b>Application (Uygulama)</b> -> <b>Cookies (Çerezler)</b> sekmesine gidin.<br>
-            4. <code>sessionid</code> değerini kopyalayıp buraya yapıştırın.
-        </div>
+        
+        <label>Senin Kullanıcı Adın:</label>
+        <input type="text" id="user1" placeholder="ör: ahmet">
+        
+        <label>Arkadaşının Kullanıcı Adı:</label>
+        <input type="text" id="target1" placeholder="ör: mehmet">
+        
+        <label>Senin Session ID Çerezin:</label>
+        <input type="password" id="session1" placeholder="senin sessionid değerin">
+        
+        <hr style="border-color: #333; margin-top: 20px;">
+        
+        <label>Arkadaşının Kullanıcı Adı (İkinci hesap):</label>
+        <input type="text" id="user2" placeholder="ör: mehmet">
+        
+        <label>Senin Kullanıcı Adın (Hedef):</label>
+        <input type="text" id="target2" placeholder="ör: ahmet">
+        
+        <label>Arkadaşının Session ID Çerezi:</label>
+        <input type="password" id="session2" placeholder="arkadaşının sessionid değeri">
+
+        <button onclick="generateJSON()">Gizli Kodu Oluştur</button>
+
+        <label style="margin-top: 20px;">Oluşan Kodu Kopyala ve GitHub'a Yapıştır:</label>
+        <textarea id="output" readonly placeholder="Kod burada görünecek..."></textarea>
     </div>
 
     <script>
-        function saveData() {
-            const myUser = document.getElementById('myUser').value.trim();
-            const targetUser = document.getElementById('targetUser').value.trim();
-            const sessionId = document.getElementById('sessionId').value.trim();
+        function generateJSON() {
+            const list = [
+                {
+                    myUser: document.getElementById('user1').value.trim(),
+                    targetUser: document.getElementById('target1').value.trim(),
+                    sessionId: document.getElementById('session1').value.trim()
+                },
+                {
+                    myUser: document.getElementById('user2').value.trim(),
+                    targetUser: document.getElementById('target2').value.trim(),
+                    sessionId: document.getElementById('session2').value.trim()
+                }
+            ];
 
-            if(!myUser || !targetUser || !sessionId) {
-                alert("Lütfen tüm alanları doldurun!");
-                return;
-            }
-
-            const data = { myUser, targetUser, sessionId };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = `${myUser}.json`;
-            a.click();
-            
-            const status = document.getElementById('status');
-            status.innerText = `✅ ${myUser}.json indirildi! Bu dosyayı GitHub'daki 'users/' klasörüne yükleyin.`;
-            status.style.color = "#00ff88";
+            document.getElementById('output').value = JSON.stringify(list, null, 2);
         }
     </script>
 </body>
