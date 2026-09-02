@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Seri Botu Otomasyonu</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #fe2c55; }
+        label { font-size: 14px; color: #bbb; display: block; margin-top: 12px; }
+        input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 6px; border: 1px solid #333; background: #2a2a2a; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #fe2c55; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #status { font-weight: bold; margin-top: 15px; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>TikTok Seri Otomasyonu 🚀</h2>
+        
+        <label>Senin TikTok Kullanıcı Adın:</label>
+        <input type="text" id="user1" placeholder="ör: ahmet">
+        
+        <label>Arkadaşının TikTok Kullanıcı Adı:</label>
+        <input type="text" id="target1" placeholder="ör: mehmet">
+        
+        <label>Senin Session ID Çerezin:</label>
+        <input type="password" id="session1" placeholder="sessionid değeri">
+
+        <hr style="border-color: #333; margin-top: 20px;">
+
+        <label>Arkadaşının TikTok Kullanıcı Adı:</label>
+        <input type="text" id="user2" placeholder="ör: mehmet">
+        
+        <label>Senin TikTok Kullanıcı Adın (Hedef):</label>
+        <input type="text" id="target2" placeholder="ör: ahmet">
+        
+        <label>Arkadaşının Session ID Çerezi:</label>
+        <input type="password" id="session2" placeholder="arkadaşının sessionid değeri">
+
+        <button onclick="sendToGitHub()">Sisteme Kaydet ve Otomatik Başlat</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        // KODA GÖMÜLÜ SABİT BİLGİLER
+        const GH_OWNER = "basegmezubeydullah21-ux";
+        const GH_REPO = "tiktok-seri-botu";
+        const GH_TOKEN = "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"; // Yeni aldığın token'ı buraya yazabilirsin
+
+        async function sendToGitHub() {
+            const status = document.getElementById('status');
+            status.innerText = "⏳ Veriler GitHub'a aktarılıyor...";
+            status.style.color = "#ffaa00";
+
+            const user1 = document.getElementById('user1').value.trim();
+            const target1 = document.getElementById('target1').value.trim();
+            const session1 = document.getElementById('session1').value.trim();
+
+            const user2 = document.getElementById('user2').value.trim();
+            const target2 = document.getElementById('target2').value.trim();
+            const session2 = document.getElementById('session2').value.trim();
+
+            if(!user1 || !target1 || !session1) {
+                alert("Lütfen en azından ilk kullanıcı bilgilerini eksiksiz doldurun!");
+                status.innerText = "";
+                return;
+            }
+
+            const userData = [
+                { myUser: user1, targetUser: target1, sessionId: session1 }
+            ];
+
+            if(user2 && target2 && session2) {
+                userData.push({ myUser: user2, targetUser: target2, sessionId: session2 });
+            }
+
+            const payload = {
+                event_type: "update_secrets",
+                client_payload: {
+                    user_data: userData
+                }
+            };
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/dispatches`, {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/vnd.github.v3+json",
+                        "Authorization": `token ${GH_TOKEN}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if(response.ok || response.status === 204) {
+                    status.innerText = "✅ Başarılı! Bilgiler kaydedildi, bot otomatik çalıştırıldı.";
+                    status.style.color = "#00ff88";
+                } else {
+                    status.innerText = "❌ Hata oluştu! Token geçersiz veya süresi dolmuş olabilir.";
+                    status.style.color = "#ff4444";
+                }
+            } catch (err) {
+                status.innerText = "❌ Bağlantı hatası yaşandı.";
+                status.style.color = "#ff4444";
+            }
+        }
+    </script>
+</body>
+</html>
+
