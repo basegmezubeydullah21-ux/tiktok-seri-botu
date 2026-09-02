@@ -2,9 +2,8 @@ name: TikTok Gunluk Seri Botu
 
 on:
   schedule:
-    # Her gün Türkiye saatiyle 15:00'te (UTC 12:00) çalışır
     - cron: '0 12 * * *'
-  workflow_dispatch: # Elle manuel başlatma butonu ekler
+  workflow_dispatch:
 
 jobs:
   run-bot:
@@ -26,4 +25,6 @@ jobs:
           playwright install-deps
 
       - name: Botu Çalıştır
+        env:
+          USERS_JSON: ${{ secrets.USERS_JSON }}
         run: python bot.py
