@@ -1,23 +1,15 @@
 import os
-import glob
 import json
 import asyncio
 from playwright.async_api import async_playwright
 
-async def process_user(user_file):
-    try:
-        with open(user_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception as e:
-        print(f"❌ Dosya okuma hatası ({user_file}): {e}")
-        return
-
+async def process_user(data):
     my_user = data.get("myUser")
     target_user = data.get("targetUser")
     session_id = data.get("sessionId")
 
     if not all([my_user, target_user, session_id]):
-        print(f"⚠️ Eksik bilgi barındıran dosya atlandı: {user_file}")
+        print(f"⚠️ Eksik bilgi barındıran veri atlandı.")
         return
 
     print(f"\n[+] İşlem başlatılıyor: @{my_user} -> @{target_user}")
@@ -54,7 +46,7 @@ async def process_user(user_file):
             await first_video.click()
             await page.wait_for_timeout(3000)
 
-            # Beğen butonunu kontrol et
+            # Beğen butonuna tıkla
             like_button = page.locator('span[data-e2e="like-icon"]').first
             await like_button.click()
             print(f"✅ Başarılı: @{my_user}, @{target_user} kullanıcısının son videosunu beğendi!")
@@ -65,14 +57,21 @@ async def process_user(user_file):
         await browser.close()
 
 async def main():
-    user_files = glob.glob("users/*.json")
-    if not user_files:
-        print("⚠️ 'users/' klasöründe işlenecek JSON dosyası bulunamadı!")
+    # Verileri GitHub Secret içinden okur
+    raw_data = os.environ.get("USERS_JSON", "[]")
+    try:
+        users = json.loads(raw_data)
+    except Exception as e:
+        print(f"❌ JSON okuma hatası: {e}")
         return
 
-    print(f"Bulunan kullanıcı sayısı: {len(user_files)}")
-    for user_file in user_files:
-        await process_user(user_file)
+    if not users:
+        print("⚠️ Hiçbir kullanıcı verisi bulunamadı!")
+        return
+
+    print(f"Bulunan kullanıcı sayısı: {len(users)}")
+    for user_data in users:
+        await process_user(user_data)
 
 if __name__ == "__main__":
     asyncio.run(main())
